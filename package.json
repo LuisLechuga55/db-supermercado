@@ -8,6 +8,7 @@
     "dev": "nodemon server.js"
   },
   "repository": {
+    "test": "jest",
     "type": "git",
     "url": "git+https://github.com/LuisLechuga55/db-supermercado.git"
   },
@@ -28,6 +29,7 @@
     "mongoose": "^6.4.4"
   },
   "devDependencies": {
+    "jest": "^28.1.3",
     "nodemon": "^2.0.19"
   }
 }

@@ -36,7 +36,10 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    const newTicket = await Ticket.create(req.body);
+    const newTicket = await Ticket.create({
+      user: req.user.id,
+      items: req.body.items,
+    });
     return res.json({
       msg: 'Ticket creado',
       ticket: newTicket,
@@ -78,8 +81,51 @@ const calculate = async (req, res) => {
   try {
     const { id } = req.params;
     const ticket = await Ticket.findById(id).populate('items');
+
+    let newSubtotal = 0;
+    let newIva = 0;
+    let newTotal = 0;
+
+    ticket.items.forEach((item) => {
+      newSubtotal += item.price;
+    });
+
+    newIva = newSubtotal * 0.16;
+    newTotal = newSubtotal + newSubtotal;
+
+    const ticketUpdated = await Ticket.updateOne(
+      {
+        id,
+      },
+      {
+        total: newTotal,
+        iva: newIva,
+        subtotal: newSubtotal,
+      }
+    );
+
+    return res.json({
+      msg: 'Ticket calculado',
+      ticket: ticketUpdated,
+    });
   } catch (error) {
-    return returnError('Error al calcular Ticket', res)
+    return res.status(500).json({
+      msg: 'Error al calcular ticket',
+    });
+  }
+};
+
+const getUserTickets = async (req, res) => {
+  try {
+    const tickets = await Ticket.find({
+      user: req.user.id
+    });
+    return res.json({
+      msg: 'Tickets obtenidos',
+      tickets
+    })
+  } catch (error) {
+    return returnError('Error al obtener Tickets', res)
   }
 };
 
@@ -90,5 +136,6 @@ export {
   create,
   updateById,
   deleteById,
-  calculate
+  calculate,
+  getUserTickets
 }
